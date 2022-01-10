@@ -90,5 +90,8 @@ lemma standard_query_apply':
         (case xyd of (x,y,d) \<Rightarrow> d))\<close>
   by (cases xyd, simp add: standard_query_apply)
 
+lemma compress_square: \<open>compress o\<^sub>C\<^sub>L compress = id_cblinfun\<close>
+  by (simp add: compress_def apply_every_mult compress1_square)
+
 
 end
