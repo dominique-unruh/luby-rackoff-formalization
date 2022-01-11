@@ -26,4 +26,10 @@ lemma [simp]: \<open>mutually compatible (reg_1_3, reg_2_3, reg_3_3)\<close>
 (* lemma [simp]: \<open>each register (reg_1_3, reg_2_3, reg_3_3)\<close>
   by (auto simp add: reg_1_3_def reg_2_3_def reg_3_3_def) *)
 
+
+(* LR2 as partial function *)
+definition LR2 :: \<open>db \<Rightarrow> db \<Rightarrow> whole \<Rightarrow> whole option\<close> where
+  \<open>LR2 D1 D2 = (\<lambda>(xL,xR). do {\<alpha> \<leftarrow> D1 xL; \<beta> \<leftarrow> D2 (xR + \<alpha>); Some (xL + \<beta>, xR + \<alpha>)})\<close>
+  for D1 D2
+
 end

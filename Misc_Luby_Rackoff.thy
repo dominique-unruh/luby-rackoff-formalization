@@ -93,5 +93,7 @@ lemma standard_query_apply':
 lemma compress_square: \<open>compress o\<^sub>C\<^sub>L compress = id_cblinfun\<close>
   by (simp add: compress_def apply_every_mult compress1_square)
 
+lemma [simp]: \<open>x + y + y = x\<close> for x y :: half
+  by auto
 
 end
