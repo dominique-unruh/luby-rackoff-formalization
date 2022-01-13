@@ -11,6 +11,12 @@ lemma cnot_apply: \<open>cnot *\<^sub>V ket (x,y) = ket (x, y+x)\<close>
    apply (rule classical_operator_exists_inj)
   by (auto intro: injI)
 
+lemma unitary_cnot[simp]: \<open>unitary cnot\<close>
+  by (auto simp: cnot_def intro!: unitary_classical_operator o_bij[where g=\<open>\<lambda>(x,y). (x, y-x)\<close>])
+
+lemma norm_cnot[simp]: \<open>norm cnot = 1\<close>
+  using norm_isometry unitary_cnot unitary_isometry by blast
+
 fun the_default where
   \<open>the_default d (Some x) = x\<close>
 | \<open>the_default d None = d\<close>

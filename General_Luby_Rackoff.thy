@@ -4,6 +4,7 @@ begin
 
 type_synonym whole = \<open>half \<times> half\<close>
 
+(*                      x       x1       x2      y      D1   D2    D3 *)
 type_synonym state = \<open>whole \<times> whole \<times> whole \<times> whole \<times> db \<times> db \<times> db\<close>
 
 definition X :: \<open>whole update \<Rightarrow> state update\<close> where \<open>X = Fst\<close>
@@ -19,9 +20,6 @@ lemma [simp,register]: \<open>mutually compatible (X,X1,X2,Y,D1,D2,D3)\<close>
 
 (* lemma [simp]: \<open>each register (X,X1,X2,Y,D1,D2,D3)\<close>
   by (auto simp add: X_def X1_def D1_def X2_def D2_def D3_def Y_def) *)
-
-lemma [simp]: \<open>mutually compatible (reg_1_3, reg_2_3, reg_3_3)\<close>
-  by (auto simp add: reg_1_3_def reg_2_3_def reg_3_3_def)
 
 (* lemma [simp]: \<open>each register (reg_1_3, reg_2_3, reg_3_3)\<close>
   by (auto simp add: reg_1_3_def reg_2_3_def reg_3_3_def) *)
