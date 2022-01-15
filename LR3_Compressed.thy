@@ -122,9 +122,7 @@ proof -
             by (simp add: old_good_def)
           have *: \<open>old_good (D1'(xL := None)) D2 D3\<close>
             by (simp add: D1'xL True domIff)
-          show \<open>co1_old_good \<ge> 0\<close>
-            by (simp add: \<open>0 \<le> co1_old_good\<close>)
-          then show \<open>preserve_query1_fixY_bound
+          show \<open>preserve_query1_fixY_bound
              (None \<in> {d. old_good (D1'(xL := d)) D2 D3}) (None \<notin> {d. old_good (D1'(xL := d)) D2 D3})
              (real N) (real 0) \<le> co1_old_good\<close>
             by (simp add: * preserve_query1_fixY_bound_def)
@@ -147,8 +145,6 @@ proof -
                      (real N) (real 0) \<le> co1_old_good\<close>
             apply (auto simp add: * preserve_query1_fixY_bound_def co1_old_good_def)
             by (simp add: inverse_eq_divide sqrt_divide_self_eq)
-          show \<open>0 \<le> co1_old_good\<close>
-            by simp
         qed
       qed
     qed
@@ -224,9 +220,7 @@ proof -
             by (simp add: old_good_def)
           have *: \<open>old_good (D1'(xL := None)) D2 D3\<close>
             by (simp add: D1'xL True domIff)
-          show \<open>co1'_old_good \<ge> 0\<close>
-            by simp
-          then show \<open>preserve_query1'_fixY_bound
+          show \<open>preserve_query1'_fixY_bound
              (None \<in> {d. old_good (D1'(xL := d)) D2 D3}) (None \<notin> {d. old_good (D1'(xL := d)) D2 D3})
              (real N) (real 0) \<le> co1'_old_good\<close>
             by (simp add: * preserve_query1'_fixY_bound_def)
@@ -249,8 +243,6 @@ proof -
                      (real N) (real 0) \<le> co1'_old_good\<close>
             apply (auto simp add: * preserve_query1'_fixY_bound_def co1'_old_good_def)
             by (simp add: inverse_eq_divide sqrt_divide_self_eq)
-          show \<open>0 \<le> co1'_old_good\<close>
-            by simp
         qed
       qed
     qed
@@ -388,9 +380,7 @@ proof -
             by meson
           have *: \<open>old_good D1 (D2'(x1L := None)) D3\<close>
             by (simp add: D2'xL True domIff)
-          show \<open>co2'_old_good q \<ge> 0\<close>
-            by simp
-          then show \<open>preserve_query1'_fixY_bound
+          show \<open>preserve_query1'_fixY_bound
              (None \<in> {d. old_good D1 (D2'(x1L := d)) D3}) (None \<notin> {d. old_good D1 (D2'(x1L := d)) D3})
              (real N) (real 0) \<le> (co2'_old_good q)\<close>
             by (simp add: * preserve_query1'_fixY_bound_def)
@@ -428,8 +418,6 @@ proof -
                      (real q) (real N) \<le> co2'_old_good q\<close>
             apply (auto simp add: * preserve_query1'_fixY_bound_def co2'_old_good_def)
             by (metis ab_semigroup_mult_class.mult_ac(1) dual_order.refl of_nat_0_le_iff real_divide_square_eq sqrt_sqrt times_divide_eq_right)
-          show \<open>0 \<le> co2'_old_good q\<close>
-            by simp
         qed
       qed
     qed
