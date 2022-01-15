@@ -453,12 +453,136 @@ proof -
     by (auto simp add: UPc2'_old_good_def UPc cblinfun_compose_assoc register_norm)
 qed
 
+
+definition xx2_LR2 :: \<open>state set\<close> where \<open>xx2_LR2 = {(x,x1,x2,y,D1,D2,D3). LR2 D1 D2 x = Some x2}\<close>
+
+definition \<open>co3'_old_good = 3 / sqrt N\<close>
+lemma preserves_co3'_old_good:
+  \<open>preserves_ket ((X2 o Fst; (Y o Fst; D3)) query') (old_good_state \<inter> xx2_LR2) old_good_state co3'_old_good\<close>
+proof -
+  define K :: \<open>(half\<times>half\<times>half\<times>whole\<times>whole\<times>db\<times>db\<times>db) \<Rightarrow> state ell2 ccsubspace\<close> 
+    where \<open>K = (\<lambda>(x2L,x2R,yR,x1,x,D1,D2,D3').
+          ket_invariant {(x,x1,(x2L,x2R),(yL,yR),D1,D2,D3'(x2L:=d)) | yL d. True})\<close>
+  define M :: \<open>(half\<times>half\<times>half\<times>whole\<times>whole\<times>db\<times>db\<times>db) set\<close> where
+    \<open>M = {(x2L,x2R,yR,x1,x,D1,D2,D3'). D3' x2L = None \<and> (\<exists>d. old_good D1 D2 (D3'(x2L:=d))) \<and> LR2 D1 D2 x = Some (x2L,x2R)}\<close>
+
+  define I1 J1 :: \<open>(half\<times>half\<times>half\<times>whole\<times>whole\<times>db\<times>db\<times>db) \<Rightarrow> (half \<times> half option) set\<close> 
+    where \<open>I1 = (\<lambda>(x2L,x2R,yR,x1,x,D1,D2,D3').
+          UNIV \<times> {d. old_good D1 D2 (D3'(x2L:=d))})\<close>
+      and \<open>J1 = (\<lambda>(x2L,x2R,yR,x1,x,D1,D2,D3').
+          UNIV \<times> {d. old_good D1 D2 (D3'(x2L:=d))})\<close>
+
+  show ?thesis
+  proof (rule inv_split_reg_query'[where X=\<open>X2 o Fst\<close> and Y=\<open>Y o Fst\<close> and H=\<open>D3\<close> and K=K
+        and ?I1.0=\<open>\<lambda>z. ket_invariant (I1 z)\<close> and ?J1.0=\<open>\<lambda>z. ket_invariant (J1 z)\<close>])
+    show \<open>(X2 \<circ> Fst;(Y \<circ> Fst;D3)) query' = (X2 \<circ> Fst;(Y \<circ> Fst;D3)) query'\<close>
+      by simp
+    show [simp]: \<open>compatible (X2 \<circ> Fst) (Y \<circ> Fst)\<close> \<open>compatible (X2 \<circ> Fst) D3\<close> \<open>compatible (Y \<circ> Fst) D3\<close>
+      by simp_all
+    show \<open>compatible_register_invariant (Y \<circ> Fst) (K z)\<close> for z
+      apply (cases z, hypsubst_thin)
+      by (auto simp add: K_def Y_def comp_assoc
+          intro!: compatible_register_invariant_Snd_comp compatible_register_invariant_Fst compatible_register_invariant_Fst_comp)
+    show \<open>compatible_register_invariant (D3 \<circ> function_at (fst z)) (K z)\<close> for z
+      by (auto simp add: K_def D3_def comp_assoc case_prod_beta
+          intro!: compatible_register_invariant_Snd_comp compatible_register_invariant_Fst compatible_register_invariant_Fst_comp
+          compatible_register_invariant_function_at)
+    show \<open>ket_invariant (old_good_state \<inter> xx2_LR2) \<le> (SUP z\<in>M. K z \<sqinter> lift_invariant (Y \<circ> Fst; D3 \<circ> function_at (fst z)) (ket_invariant (I1 z)))\<close>
+      apply (auto simp add: K_def D3_def lift_Fst_ket_inv ket_invariant_inter
+          ket_invariant_SUP[symmetric] I1_def xx2_LR2_def
+          old_good_state_def case_prod_beta comp_assoc Y_def M_def zero_prod_def num_queries_D1_def
+          lift_inv_prod lift_invariant_comp lift_invariant_function_at_ket_inv lift_Snd_ket_inv)
+      by (metis fun_upd_same fun_upd_triv fun_upd_upd)
+    show \<open>K z \<sqinter> lift_invariant (Y \<circ> Fst; D3 \<circ> function_at (fst z)) (ket_invariant (J1 z)) \<le> ket_invariant old_good_state\<close>
+      if \<open>z\<in>M\<close> for z
+      using that 
+      apply (cases z, hypsubst_thin)
+      by (auto simp add: K_def lift_Fst_ket_inv ket_invariant_inter ket_invariant_SUP[symmetric] J1_def
+          case_prod_beta D3_def comp_assoc Y_def old_good_state_def M_def
+          lift_inv_prod lift_invariant_comp lift_invariant_function_at_ket_inv reg_3_3_def lift_Snd_ket_inv)
+    show \<open>orthogonal_spaces (K z) (K z')\<close> if \<open>z\<in>M\<close> \<open>z'\<in>M\<close> \<open>z \<noteq> z'\<close> for z z'
+      apply (cases z; cases z')
+      using that apply (auto simp: K_def M_def)
+      by (metis fun_upd_triv fun_upd_upd)
+    show \<open>K z \<le> lift_invariant (X2 \<circ> Fst) (ket_invariant {fst z})\<close> for z
+      by (auto simp: K_def X2_def lift_Fst_ket_inv lift_Snd_ket_inv lift_invariant_comp case_prod_beta)
+    show [simp]: \<open>0 \<le> co3'_old_good\<close>
+      by (simp add: co3'_old_good_def)
+    show \<open>preserves_ket query1' (I1 z) (J1 z) co3'_old_good\<close> if \<open>z\<in>M\<close> for z
+    proof (cases z)
+      case (fields x2L x2R yR x1 x D1 D2D3')
+      obtain D2 D3' where D2D3'[simp]: \<open>D2D3' = (D2,D3')\<close>
+        apply atomize_elim by auto
+      from that have D3'xL: \<open>D3' x2L = None\<close>
+        by (auto simp: M_def fields)
+      from that have \<open>\<exists>d. old_good D1 D2 (D3'(x2L:=d))\<close>
+        by (auto simp: M_def fields)
+      then have D3'_good: \<open>old_good D1 D2 D3'\<close>
+        by (smt (verit) D3'xL domIff fun_upd_apply old_good_def)
+      then have None_I1: \<open>None \<in> snd ` I1 z\<close> (* TODO used? *)
+        apply (auto simp: M_def fields I1_def D3'xL)
+        by (simp add: D3'xL fun_upd_idem)
+      from that have \<open>LR2 D1 D2 x = Some (x2L,x2R)\<close>
+        by (auto simp: M_def fields)
+      then have good_x2L: \<open>\<exists>xL xR. LR2 D1 D2 (xL, xR) \<bind> (\<lambda>(x2L', x2R). Some (x2L = x2L')) = Some True\<close>
+        apply (rule_tac x=\<open>fst x\<close> in exI, rule_tac x=\<open>snd x\<close> in exI) by simp
+      with D3'_good have D3'x2L_good: \<open>old_good D1 D2 (D3'(x2L:=d))\<close> for d
+        unfolding old_good_alt_def by auto
+
+      show ?thesis
+        apply (simp only: case_prod_beta I1_def J1_def fst_conv snd_conv fields D2D3')
+      proof (rule preserve_query1'[where b\<^sub>i=N and b\<^sub>j\<^sub>0=0])
+        show \<open>{d. old_good D1 D2 (D3'(x2L := d))} \<subseteq> {d. old_good D1 D2 (D3'(x2L := d))}\<close> by simp
+        show \<open>card (Some -` {d. old_good D1 D2 (D3'(x2L := d))}) \<le> N\<close> by (simp add: card_mono)
+        show \<open>card (- Some -` {d. old_good D1 D2 (D3'(x2L := d))}) \<le> 0\<close>
+          using D3'x2L_good by auto
+        show \<open>preserve_query1'_bound
+             (None \<in> {d. old_good D1 D2 (D3'(x2L := d))})
+             (real N) (real 0) \<le> co3'_old_good\<close>
+          by (simp add: preserve_query1'_bound_def)
+        show \<open>None \<in> {d. old_good D1 D2 (D3'(x2L := d))}\<close>
+          using D3'_good by (auto simp: M_def fields I1_def D3'xL fun_upd_idem)
+      qed
+    qed
+  qed
+qed
+
+
+definition \<open>UPc3'_old_good = co3'_old_good\<close>
+lemma preserves_UPc3'_old_good:
+  \<open>preserves_ket ((X2;(Y;D3)) UPc') (old_good_state \<inter> xx2_LR2) old_good_state UPc3'_old_good\<close>
+proof -
+  note comp_apply[simp del]
+
+  have UPc: \<open>((X2;(Y;D3)) UPc') = 
+      (X2 o Fst; Y o Snd) cnot o\<^sub>C\<^sub>L (X2 \<circ> Snd; Y \<circ> Fst) cnot o\<^sub>C\<^sub>L (X2 \<circ> Fst; (Y \<circ> Fst; D3)) query'\<close>
+    by (simp add: UPc'_def reg_1_3_def reg_2_3_def reg_3_3_def register_pair_Fst register_pair_Snd
+        flip: register_mult comp_assoc register_comp_pair 
+        o_apply[where x=cnot and f=\<open>(X2;(Y;D3))\<close>] o_apply[where x=query' and f=\<open>(X2;(Y;D3))\<close>])
+
+  have \<open>preserves_ket ((X2 \<circ> Fst; (Y \<circ> Fst; D3)) query') (old_good_state \<inter> xx2_LR2) old_good_state co3'_old_good\<close>
+    by (rule preserves_co3'_old_good)
+  also have \<open>preserves_ket ((X2 \<circ> Snd; Y \<circ> Fst) cnot) old_good_state old_good_state 0\<close>
+    apply (rule preserves_compatible[where U=cnot])
+    by (auto simp add: old_good_state_def X2_def Y_def comp_assoc
+        intro!: compatible_register_invariant_pair compatible_register_invariant_Fst_comp
+        compatible_register_invariant_Snd_comp)
+  also have \<open>preserves_ket ((X2 \<circ> Fst; Y \<circ> Snd) cnot) old_good_state old_good_state 0\<close>
+    apply (rule preserves_compatible[where U=cnot])
+    by (auto simp add: old_good_state_def X2_def Y_def comp_assoc
+        intro!: compatible_register_invariant_pair compatible_register_invariant_Fst_comp
+        compatible_register_invariant_Snd_comp)
+  finally show ?thesis
+    by (auto simp add: UPc3'_old_good_def UPc cblinfun_compose_assoc register_norm)
+qed
+
 end
 
 (* What we have so far:
 
 UPc1': old_good_state_00 \<longrightarrow> old_good_state_0
 UPc2': old_good_state_0 \<inter> num_queries_1 q \<longrightarrow> old_good_state
+UPc3': old_good_state \<inter> xx1_LR3 \<longrightarrow> old_good_state
 
 Plugging this together with other stuff:
 UPc1';UPc2': old_good_state_00 \<inter> num_queries_1 q \<inter> num_queries_2 q 
